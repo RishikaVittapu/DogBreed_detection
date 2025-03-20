@@ -1,0 +1,83 @@
+import matplotlib.pyplot as plt
+import tensorflow as tf
+from tensorflow.keras.applications.inception_v3 import InceptionV3
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.layers import Dense, GlobalAveragePooling2D, Dropout
+from tensorflow.keras.models import Model
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.regularizers import l2
+
+train_dir = r"C:\Users\rishi\Downloads\Dog_Breed_detection-main\Dog_Breed_detection-main\dog"
+test_dir = r"C:\Users\rishi\Downloads\Dog_Breed_detection-main\Dog_Breed_detection-main\dog"
+num_classes = 70
+image_size = (180, 180)  
+batch_size = 16
+learning_rate = 0.0001  # ⬇️ Lower learning rate
+epochs = 10
+
+# ✅ Improved Data Augmentation to Avoid Overfitting
+training_data = ImageDataGenerator(
+    rescale=1./255,
+    rotation_range=30,  # 🔥 Added rotation
+    width_shift_range=0.2,  # 🔥 Added width shift
+    height_shift_range=0.2,  # 🔥 Added height shift
+    brightness_range=[0.8, 1.2],  # 🔥 Added brightness change
+    shear_range=0.2,
+    zoom_range=0.3,  # 🔥 Increased zoom range
+    horizontal_flip=True,
+    fill_mode='nearest'
+)
+
+validation_data = ImageDataGenerator(rescale=1./255)
+
+# ✅ Load Pretrained Model (InceptionV3)
+base_model = InceptionV3(weights="imagenet", include_top=False, input_shape=(image_size[0], image_size[1], 3))
+
+x = base_model.output
+x = GlobalAveragePooling2D()(x)
+x = Dense(1024, activation='relu', kernel_regularizer=l2(0.01))(x)  # 🔥 Added L2 regularization
+x = Dropout(0.3)(x)  # 🔥 Added Dropout (30%)
+predictions = Dense(num_classes, activation="softmax")(x)
+
+model = Model(inputs=base_model.input, outputs=predictions)
+
+# ✅ Unfreeze Some Layers for Fine-tuning
+for layer in base_model.layers[-50:]:  # Unfreeze last 50 layers
+    layer.trainable = True
+
+model.compile(optimizer=Adam(learning_rate=learning_rate), loss='categorical_crossentropy', metrics=["accuracy"])
+
+train_generator = training_data.flow_from_directory(
+    train_dir,
+    target_size=image_size,
+    batch_size=batch_size,
+    class_mode="categorical"
+)
+
+valid_generator = validation_data.flow_from_directory(
+    test_dir,
+    target_size=image_size,
+    batch_size=batch_size,
+    class_mode="categorical"
+)
+
+# ✅ Steps Per Epoch Calculation
+steps_per_epoch = train_generator.samples // batch_size
+validation_steps = valid_generator.samples // batch_size
+
+# ✅ Model Training with Learning Rate Scheduler
+from tensorflow.keras.callbacks import ReduceLROnPlateau
+
+reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=2, verbose=1, min_lr=1e-6)
+
+history = model.fit(
+    train_generator,
+    steps_per_epoch=steps_per_epoch,
+    epochs=epochs,
+    validation_data=valid_generator,
+    validation_steps=validation_steps,
+    callbacks=[reduce_lr]  # 🔥 Learning rate will decrease if overfitting is detected
+)
+
+# ✅ Save in Keras Recommended Format
+model.save("dogclassification.keras")
