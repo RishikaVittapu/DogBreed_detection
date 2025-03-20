@@ -13,7 +13,7 @@ The Dog Breed Detection App is a simple Streamlit application that uses a pre-tr
 
 ## Demo
 
-You can see a live demo of the app [here](https://dogbreeddetection.streamlit.app/).
+You can see a live demo of the app [here](https://personalized-dog-breed-predictor.streamlit.app/)
 
 ## Installation
 
@@ -22,12 +22,12 @@ To run the Dog Breed Detection App locally, follow these steps:
 1. Clone this repository:
 
    ```bash
-   git clone https://github.com/harichselvamc/Dog_Breed_detection
+   git clone https://github.com/RishikaVittapu/DogBreed_detection
 
 2. Change the directory to the project folder:
 
    ```bash
-    cd Dog_Breed_detection
+    cd DogBreed_detection
    
 3. Install the required dependencies using pip:
 
