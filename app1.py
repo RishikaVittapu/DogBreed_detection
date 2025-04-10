@@ -89,9 +89,10 @@ if uploaded_image or camera_image:
     img = preprocess_image(input_image.read())
 
     if img is not None:
-        st.image(input_image, caption="Uploaded Image", use_column_width=True)
+       st.image(input_image, caption="Uploaded Image", use_container_width=True)
 
-        if st.button("🔍 Classify"):
+
+    if st.button("🔍 Classify"):
             try:
                 prediction = model.predict(img)
                 top_3_indices = np.argsort(prediction[0])[-3:][::-1]
