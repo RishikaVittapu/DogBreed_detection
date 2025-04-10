@@ -3,5 +3,4 @@ streamlit
 Image
 matplotlib
 numpy
-opencv-python
 requests

@@ -2,7 +2,6 @@ import streamlit as st
 import tensorflow as tf
 from tensorflow.keras.preprocessing import image # type: ignore
 import numpy as np
-import cv2 # type: ignore
 import requests
 import random
 
