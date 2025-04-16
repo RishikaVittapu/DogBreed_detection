@@ -38,7 +38,7 @@ To run the Dog Breed Detection App locally, follow these steps:
 4. Run the Streamlit app:
 
    ```bash
-    streamlit run app.py
+    streamlit run app1.py
 
 ### The app will open in your web browser, allowing you to upload dog images for classification.
 
